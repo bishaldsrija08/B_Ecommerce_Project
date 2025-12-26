@@ -1,5 +1,6 @@
 import express, {Application, Request, Response} from "express"
 const app: Application = express();
+
 // Parse JSON bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -8,11 +9,16 @@ app.use(express.urlencoded({ extended: true }));
 import dotenv from "dotenv";
 dotenv.config();
 
+// Database Connection
 import './database/connection'
 
 // Importing Routes
 import userRoutes from './routes/userRoutes'
 app.use("/api", userRoutes)
+
+import adminSeeder from "./adminSeeder";
+// admin Seeder
+adminSeeder();
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Bye HII!");

@@ -38,7 +38,7 @@ class User extends Model {
         type:DataType.ENUM("admin", "customer"),
         defaultValue: "customer"
     })
-    declare role: string
+    declare userRole: string
 }
 
 export default User;
