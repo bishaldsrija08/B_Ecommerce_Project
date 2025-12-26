@@ -1,4 +1,6 @@
-import {Table, Column, Model, DataType, CreatedAt, PrimaryKey} from "sequelize-typescript"
+import { ENUM } from "sequelize";
+import {Table, Column, Model, DataType, CreatedAt, PrimaryKey, AllowNull} from "sequelize-typescript"
+import { toDefaultValue } from "sequelize/lib/utils";
 
 @Table({
     tableName: "users",
@@ -22,7 +24,8 @@ class User extends Model {
     declare username: string;
 
     @Column({
-        type: DataType.STRING
+        type: DataType.STRING,
+        allowNull: false
     })
     declare userEmail: string;
     
@@ -30,6 +33,12 @@ class User extends Model {
         type: DataType.STRING
     })
     declare userPassword: string;
+
+    @Column({
+        type:DataType.ENUM("admin", "customer"),
+        defaultValue: "customer"
+    })
+    declare role: string
 }
 
 export default User;
