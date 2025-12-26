@@ -1,6 +1,5 @@
 import { ENUM } from "sequelize";
 import {Table, Column, Model, DataType, CreatedAt, PrimaryKey, AllowNull} from "sequelize-typescript"
-import { toDefaultValue } from "sequelize/lib/utils";
 
 @Table({
     tableName: "users",
