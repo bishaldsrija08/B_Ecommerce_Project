@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import User from '../database/models/userModel';
 import bcrypt from 'bcryptjs'
-import { promises } from 'node:dns';
 import jwt from 'jsonwebtoken';
 class AuthController {
     // Register a new user
@@ -52,7 +51,8 @@ class AuthController {
             })
             return
         }
-        const token = jwt.sign({id:isUserExists?.id}, "secretKey", {
+        const JWT_SECRET = process.env.JWT_SECRET as string;
+        const token = jwt.sign({id:isUserExists?.id}, JWT_SECRET, {
             expiresIn: "30d"
         })
         res.status(200).json({

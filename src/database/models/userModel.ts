@@ -1,4 +1,3 @@
-import { ENUM } from "sequelize";
 import {Table, Column, Model, DataType, CreatedAt, PrimaryKey, AllowNull} from "sequelize-typescript"
 
 @Table({
