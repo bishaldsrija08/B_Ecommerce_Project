@@ -16,6 +16,10 @@ import './database/connection'
 import adminSeeder from "./adminSeeder";
 adminSeeder();
 
+// Category Seeder
+import categoryController from "./controllers/categoryController";
+categoryController.seedCategories();
+
 // Importing Routes
 import userRoutes from './routes/userRoutes'
 app.use("/", userRoutes)
