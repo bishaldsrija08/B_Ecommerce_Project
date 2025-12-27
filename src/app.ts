@@ -12,13 +12,15 @@ dotenv.config();
 // Database Connection
 import './database/connection'
 
+// admin Seeder
+import adminSeeder from "./adminSeeder";
+adminSeeder();
+
 // Importing Routes
 import userRoutes from './routes/userRoutes'
-app.use("/api", userRoutes)
-
-import adminSeeder from "./adminSeeder";
-// admin Seeder
-adminSeeder();
+app.use("/", userRoutes)
+import productRoutes from './routes/productRoutes'
+app.use("/admin", productRoutes)
 
 app.get("/", (req: Request, res: Response) => {
     res.send("Bye HII!");
