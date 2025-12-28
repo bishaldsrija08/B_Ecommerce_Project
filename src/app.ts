@@ -26,6 +26,9 @@ app.use("/", userRoutes)
 import productRoutes from './routes/productRoutes'
 app.use("/admin", productRoutes)
 
+import categoryRoutes from './routes/categoryRoutes'
+app.use("/", categoryRoutes)
+
 app.get("/", (req: Request, res: Response) => {
     res.send("Bye HII!");
 });

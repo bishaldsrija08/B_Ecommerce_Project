@@ -62,7 +62,15 @@ class ProductController {
 
     public static async getSingleProduct(req: Request, res: Response): Promise<void> {
         const productId = req.params.id;
-        const isProduct = await Product.findByPk(productId)
+        const isProduct = await Product.findByPk(productId, {
+            include: [{
+                model: User,
+                attributes: ['username']
+            }, {
+                model: Category,
+                attributes: ['categoryName']
+            }]
+        })
         if (!isProduct) {
             res.status(404).json({ message: "Product not found" });
             return
