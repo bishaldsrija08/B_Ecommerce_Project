@@ -33,7 +33,7 @@ class Product extends Model{
     @Column({
         type:DataType.INTEGER
     })
-    declare procuctTotalStockQty: number
+    declare productTotalStockQty: number
 
     @Column({
         type: DataType.STRING

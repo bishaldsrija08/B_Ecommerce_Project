@@ -9,7 +9,7 @@ import { where } from 'sequelize';
 class ProductController {
     // Add Product
     public static async addProduct(req: AuthRequest, res: Response): Promise<void> {
-        const { productName, productPrice, productDescription, procuctTotalStockQty, categoryId } = req.body;
+        const { productName, productPrice, productDescription, productTotalStockQty, categoryId } = req.body;
         const userId = req.user?.id;
         let fileName
         if (req.file) {
@@ -18,7 +18,7 @@ class ProductController {
             fileName = "https://bishalrijal.info.np/wp-content/uploads/2024/05/Bishal-Rijal-Computer-Science.png"
         }
 
-        if (!productName || !productDescription || !productPrice || !procuctTotalStockQty || !categoryId) {
+        if (!productName || !productDescription || !productPrice || !productTotalStockQty || !categoryId) {
             res.status(400).json({ message: "All fields are required" });
             return
         }
@@ -27,7 +27,7 @@ class ProductController {
             productName,
             productDescription,
             productPrice,
-            procuctTotalStockQty,
+            productTotalStockQty,
             productImageUrl: fileName,
             userId,
             categoryId
@@ -99,7 +99,7 @@ class ProductController {
 
     public static async updateProduct(req: AuthRequest, res: Response): Promise<void> {
         const productId = req.params.id;
-        const { productName, productPrice, productDescription, procuctTotalStockQty, categoryId } = req.body;
+        const { productName, productPrice, productDescription, productTotalStockQty, categoryId } = req.body;
         const userId = req.user?.id;
         let fileName
         if (req.file) {
@@ -108,7 +108,7 @@ class ProductController {
             fileName = "https://bishalrijal.info.np/wp-content/uploads/2024/05/Bishal-Rijal-Computer-Science.png"
         }
 
-        if (!productName || !productDescription || !productPrice || !procuctTotalStockQty || !categoryId) {
+        if (!productName || !productDescription || !productPrice || !productTotalStockQty || !categoryId) {
             res.status(400).json({ message: "All fields are required" });
             return
         }
@@ -121,7 +121,7 @@ class ProductController {
             productName,
             productDescription,
             productPrice,
-            procuctTotalStockQty,
+            productTotalStockQty,
             categoryId,
             userId,
             productImageUrl: fileName

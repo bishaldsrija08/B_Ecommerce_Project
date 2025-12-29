@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import User from "./models/userModel";
 import Product from "./models/productModel";
 import Category from "./models/categoryModel";
+import Cart from "./models/cartModel";
 
 const DB_NAME = process.env.DB_NAME!;
 const DB_USERNAME = process.env.DB_USERNAME!;
@@ -27,18 +28,26 @@ sequelize.authenticate()
     console.error("Database connection error:", err);
   });
 
-sequelize.sync({ alter: false })
+sequelize.sync({ alter: true })
   .then(() => {
     console.log("Database synced");
   });
 
-  // Relationships of Product and User
-  User.hasMany(Product, {foreignKey: "userId"})
-  Product.belongsTo(User, {foreignKey: "userId"})
+// Relationships of Product and User
+User.hasMany(Product, {foreignKey: "userId"})
+Product.belongsTo(User, {foreignKey: "userId"})
 
 // Relationships of Product and Category
 
 Category.hasOne(Product, {foreignKey: "categoryId"})
 Product.belongsTo(Category, {foreignKey: "categoryId"})
+
+// Relationships of User and Cart
+User.hasMany(Cart, {foreignKey: "userId"})
+Cart.belongsTo(User, {foreignKey: "userId"})
+
+// Relationships of Product and Cart
+Product.hasMany(Cart, {foreignKey: "productId"})
+Cart.belongsTo(Product, {foreignKey: "productId"})
 
 export default sequelize;
