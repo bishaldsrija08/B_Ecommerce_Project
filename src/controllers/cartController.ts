@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/middleware';
 import Cart from '../database/models/cartModel';
 import Product from '../database/models/productModel';
+import Category from '../database/models/categoryModel';
 
 
 class CartController {
@@ -55,8 +56,15 @@ class CartController {
                 },
                 include: [{
                     model: Product,
-                    attributes: ['productName', 'productPrice', 'productTotalStockQty']
-                }]
+                    attributes: ['productName', 'productPrice', 'productTotalStockQty'],
+                    include: [
+                        {
+                            model: Category,
+                            attributes: ["id", "categoryName"]
+                        }
+                    ]
+                }],
+                attributes: ["id", "quantity"]
             })
         if (cartItems.length === 0) {
             res.status(200).json({
@@ -68,6 +76,74 @@ class CartController {
                 data: cartItems
             })
         }
+    }
+    // Remove item from cart => Delete
+    async remoreFromCart(req: AuthRequest, res: Response): Promise<void> {
+        const userId = req.user?.id
+        const { productId } = req.params
+        // Check if the product exists in Cart table or not
+        const cartItem: any = await Cart.findOne({
+            where: {
+                userId,
+                productId
+            }
+        })
+        if (!cartItem) {
+            res.status(404).json({
+                message: "Cart item not found"
+            })
+            return
+        }
+        console.log(cartItem)
+        // Check if the cart item belongs to the user
+        if (cartItem.userId !== userId) {
+            res.status(404).json({
+                message: "You do not have permission to delete this item"
+            })
+            return
+        }
+        // Delete the cart item
+        await Cart.destroy({
+            where: {
+                userId,
+                productId
+            }
+        })
+        res.status(200).json({
+            message: "Cart item removed successfully"
+        })
+    }
+    // Update cart item quantity
+    async updateCartItem(req: AuthRequest, res: Response): Promise<void> {
+        const { productId } = req.params;
+        const userId = req.user?.id;
+        const { quantity } = req.body;
+
+        if (!quantity) {
+            res.status(400).json({
+                message: "Quantity is required"
+            })
+            return
+        }
+
+        const cartItem = await Cart.findOne({
+            where: {
+                userId,
+                productId
+            }
+        })
+        if (!cartItem) {
+            res.status(404).json({
+                message: "Cart item not found"
+            })
+            return
+        }
+        cartItem.quantity = quantity;
+        await cartItem?.save()
+        res.status(200).json({
+            message: "Cart item updated successfully",
+            data: cartItem
+        })
     }
 }
 
