@@ -3,6 +3,9 @@ import User from "./models/userModel";
 import Product from "./models/productModel";
 import Category from "./models/categoryModel";
 import Cart from "./models/cartModel";
+import Order from "./models/orderMode.";
+import OrderDetails from "./models/orderDetailsModel";
+import Payment from "./models/paymentModel";
 
 const DB_NAME = process.env.DB_NAME!;
 const DB_USERNAME = process.env.DB_USERNAME!;
@@ -28,7 +31,7 @@ sequelize.authenticate()
     console.error("Database connection error:", err);
   });
 
-sequelize.sync({ alter: true })
+sequelize.sync({ force: true })
   .then(() => {
     console.log("Database synced");
   });
@@ -49,5 +52,23 @@ Cart.belongsTo(User, {foreignKey: "userId"})
 // Relationships of Product and Cart
 Product.hasMany(Cart, {foreignKey: "productId"})
 Cart.belongsTo(Product, {foreignKey: "productId"})
+
+// Relationship of order and order details
+Order.hasMany(OrderDetails, {foreignKey: "orderId"})
+OrderDetails.belongsTo(Order, {foreignKey: "orderId"})
+
+// Relationship of order details and product
+Product.hasMany(OrderDetails, {foreignKey: "productId"})
+OrderDetails.belongsTo(Product, {foreignKey: "productId"})
+
+// Order and payment relationship
+Payment.hasOne(Order, {foreignKey: "paymentId"})
+Order.belongsTo(Payment, {foreignKey: "paymentId"})
+
+
+// Order and user relationship
+User.hasMany(Order, {foreignKey: "userId"})
+Order.belongsTo(User, {foreignKey: "userId"})
+
 
 export default sequelize;
