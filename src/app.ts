@@ -33,6 +33,9 @@ app.use("/api", categoryRoutes)
 import cartRoutes from './routes/cartRoutes'
 app.use("/api", cartRoutes)
 
+import orderRoutes from './routes/orderRoutes'
+app.use("/api", orderRoutes)    
+
 // Server start
 const PORT:number = Number(process.env.PORT) || 3000;
 app.listen(PORT, ()=>{

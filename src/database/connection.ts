@@ -31,7 +31,7 @@ sequelize.authenticate()
     console.error("Database connection error:", err);
   });
 
-sequelize.sync({ force: true })
+sequelize.sync({ alter: false, force: false })
   .then(() => {
     console.log("Database synced");
   });

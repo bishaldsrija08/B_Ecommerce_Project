@@ -17,7 +17,8 @@ class Payment extends Model {
 
     @Column({
         type: DataType.ENUM(PaymentMethod.COD, PaymentMethod.Esewa, PaymentMethod.Khalti),
-        defaultValue: PaymentMethod.COD
+        defaultValue: PaymentMethod.COD,
+        allowNull: false
     })
     declare paymentMethod: string;
 
