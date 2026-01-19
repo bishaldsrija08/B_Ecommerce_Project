@@ -1,10 +1,11 @@
 import { Response } from "express";
-import { KhaltiResponse, OrderData, PaymentMethod, PaymentStatus, TransactionStatus, TransactionVerification } from "../globals/type";
+import { KhaltiResponse, OrderData, OrderStatus, PaymentMethod, PaymentStatus, TransactionStatus, TransactionVerification } from "../globals/type";
 import { AuthRequest } from "../middlewares/middleware";
 import Order from "../database/models/orderMode.";
 import Payment from "../database/models/paymentModel";
 import OrderDetails from "../database/models/orderDetailsModel";
 import axios from "axios";
+import Product from "../database/models/productModel";
 
 class OrderController {
     async createOrder(req: AuthRequest, res: Response): Promise<void> {
@@ -78,42 +79,145 @@ class OrderController {
         }
     }
 
-    async verifyTransaction(req: AuthRequest, res: Response): Promise<void> {
-        const { pidx } = req.body
-
+    // Verify pidx from khalti
+    async verifyKhaltiPayment(req: AuthRequest, res: Response): Promise<void> {
+        const { pidx } = req.body;
         if (!pidx) {
+            res.status(400).json({ message: "Missing pidx" });
+            return;
+        }
+
+        // Verify payment with khalti
+        const khaltiResponse = await axios.post("https://dev.khalti.com/api/v2/epayment/lookup/", {
+            pidx: pidx
+        }, {
+            headers: {
+                Authorization: "Key " + process.env.KHALTI_SECRET_KEY
+            }
+        })
+        const khaltiResponseData: TransactionVerification = khaltiResponse.data
+
+        if (khaltiResponseData.status == TransactionStatus.Completed) {
+            // update payment status in db
+            await Payment.update({
+                paymentStatus: PaymentStatus.PAID
+            }, {
+                where: { pidx: pidx }
+            })
+            res.status(200).json({
+                message: "Payment verified successfully"
+            })
+        } else {
             res.status(400).json({
-                message: "Pidx is compulsory!"
+                message: "Payment verification failed"
+            })
+        }
+    }
+    // fetch my order
+    async fetchMyOrder(req: AuthRequest, res: Response): Promise<void> {
+        const userId = req.user?.id
+        const myOrder = await Order.findAll({
+            where: {
+                userId
+            },
+            include: {
+                model: Payment
+            }
+        })
+        if (myOrder.length == 0) {
+            res.status(400).json({
+                message: "No order yet",
+                data: []
+            })
+            return
+        }
+        res.status(200).json({
+            message: "Your order fetched successfylly!",
+            data: myOrder
+        })
+    }
+
+    // Order details
+
+    async fetchOrderDetails(req: AuthRequest, res: Response): Promise<void> {
+        const userId = req.user?.id
+        const { orderId } = req.params
+        const myOrder = await OrderDetails.findAll({
+            where: {
+                orderId,
+                userId
+            },
+            include: {
+                model: Product
+            }
+        })
+        if (myOrder.length == 0) {
+            res.status(400).json({
+                message: "No order yet",
+                data: []
+            })
+            return
+        }
+        res.status(200).json({
+            message: "Your order fetched successfylly!",
+            data: myOrder
+        })
+    }
+    // cancel order
+    async cancelMyOrder(req: AuthRequest, res: Response): Promise<void> {
+        const userId = req.user?.id
+        const { orderId } = req.params
+
+        if (!orderId) {
+            res.status(400).json({
+                message: "Order is must before began!"
+            })
+            return
+        }
+        const order: any = await Order.findAll({
+            where: {
+                userId,
+                id: orderId
+            }
+        })
+        if (order.length == 0) {
+            res.status(400).json({
+                message: "No order placed!"
+            })
+            return
+        }
+        if (order?.orderStatus == OrderStatus.SHIPPED || order?.orderStatus == OrderStatus.PREPERATION || order?.orderStatus == OrderStatus.DELIVERED || order?.orderStatus == OrderStatus) {
+            res.status(400).json({
+                message: "You can't cacel order!"
+            })
+            return
+        }
+        await Order.update({
+            OrderStatus: OrderStatus.CANCELLED
+        }, {
+            where: {
+                id: orderId
+            }
+        })
+    }
+
+    async changeOrderStatus(req: AuthRequest, res: Response): Promise<void> {
+        const userId = req.user?.id
+        const { orderStatus } = req.body
+        if (!orderStatus) {
+            res.status(400).json({
+                message: "Order status must be provided!"
             })
             return
         }
 
-        const response = await axios.post(
-            "https://dev.khalti.com/api/v2/epayment/lookup/",
-            { pidx },
-            {
-                headers: {
-                    Authorization: `Key ${process.env.KHALTI_SECRET_KEY}`
-                }
+        await Order.update({
+            orderStatus
+        }, {
+            where: {
+                id: userId
             }
-        )
-
-        const data: TransactionVerification = response.data
-
-        if (data.status === TransactionStatus.Completed) {
-            await Payment.update(
-                { paymentStatus: PaymentStatus.PAID },
-                { where: { pidx } }
-            )
-
-            res.status(200).json({
-                message: "Payment successful"
-            })
-        } else {
-            res.status(400).json({
-                message: "Payment not successful!"
-            })
-        }
+        })
     }
 }
 

@@ -40,7 +40,7 @@ class Order extends Model {
     declare totalAmount: number;
 
     @Column({
-        type: DataType.ENUM(OrderStatus.CANCELLED, OrderStatus.DELIVERED, OrderStatus.PENDING, OrderStatus.SHIPPED),
+        type: DataType.ENUM(OrderStatus.CANCELLED, OrderStatus.DELIVERED, OrderStatus.PENDING, OrderStatus.SHIPPED, OrderStatus.PREPERATION),
         defaultValue: OrderStatus.PENDING
     })
     declare orderStatus: number;
