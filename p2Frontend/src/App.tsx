@@ -1,10 +1,18 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./store/store";
 function App() {
-
   return (
-  <h1 className="text-blue-800">
-    Hello world!
-  </h1>
-  )
+    <Provider store={store}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<div>Home Page</div>} />
+          <Route path="/register" element={<div>Register Page</div>} />
+          <Route path="/login" element={<div>Login Page</div>} />
+        </Routes>
+      </BrowserRouter>
+    </Provider>
+  );
 }
 
-export default App
+export default App;
